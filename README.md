@@ -5,6 +5,8 @@ This project is a Chrome extension that leverages Next.js 15 App Router and AI c
 ## Features
 
 - Multi-modal chatbot supporting text and images
+- File attachments with drag-and-drop, clipboard paste, and file selection
+- Support for image and text file uploads in conversations
 - Tool calling capabilities
 - Integration with OpenAI GPT-4.5 and Claude 3.7 Sonnet
 - Support for Claude's extended thinking/reasoning capabilities
@@ -62,6 +64,26 @@ pnpm build
    - Enable "Developer mode"
    - Click "Load unpacked" and select the `chrome` directory from this project
 
+## Multimodal Chat Features
+
+The chat interface supports several ways to send files along with your messages:
+
+1. **Drag and Drop**: Simply drag image or text files directly onto the chat area
+2. **Clipboard Paste**: Copy an image or text file and paste it into the message input (Ctrl+V or Cmd+V)
+3. **File Selection**: Click the paperclip icon to open a file picker
+
+Supported file types:
+- Images (PNG, JPG, GIF, WebP, etc.)
+- Text files (TXT, MD, JSON, etc.)
+
+### How it works
+
+When you add files to a message:
+1. Files are displayed as previews before sending
+2. Files are processed and sent along with your message
+3. Both the AI and you can see the attachments in the conversation history
+4. The AI can analyze and respond to the content of attached files
+
 ## Project Structure
 
 ```
@@ -108,4 +130,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Next.js](https://nextjs.org/)
 - [OpenAI](https://openai.com/)
 - [Anthropic](https://www.anthropic.com/)
-- [Chrome Extensions API](https://developer.chrome.com/docs/extensions/) 
+- [Chrome Extensions API](https://developer.chrome.com/docs/extensions/)
+- [Vercel AI SDK](https://sdk.vercel.ai/) - Multimodal chat features 

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -6,14 +6,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+} from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -21,14 +21,11 @@ export default function Home() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>AI Assistant Chrome Extension</CardTitle>
-          <CardDescription>
-            Your AI assistant powered by Next.js and Tailwind v4
-          </CardDescription>
+          <CardDescription>Your AI assistant powered by Next.js and Tailwind v4</CardDescription>
         </CardHeader>
         <CardContent>
           <p className="mb-4">
-            Access the AI assistant through the Chrome side panel by clicking on the
-            extension icon.
+            Access the AI assistant through the Chrome side panel by clicking on the extension icon.
           </p>
           <div className="flex space-x-2">
             <Button asChild>
@@ -47,9 +44,7 @@ export default function Home() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <p className="text-sm text-muted-foreground">
-            Built with Tailwind v4 and shadcn/ui
-          </p>
+          <p className="text-sm text-muted-foreground">Built with Tailwind v4 and shadcn/ui</p>
         </CardFooter>
       </Card>
     </main>
