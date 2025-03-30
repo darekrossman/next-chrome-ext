@@ -1,0 +1,443 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Chrome Extension with Next.js App Router and AI Integration
+
+## Project Overview
+
+This project aims to build a Chrome extension that leverages the power of Next.js App Router and AI capabilities through OpenAI and Anthropic APIs. The extension utilizes Chrome's sidePanel feature for its primary user interface, providing a seamless and accessible AI assistant experience directly within the browser.
+
+### Core Features
+
+- **Multi-modal Chatbot**: Support for text, images, and other media types
+- **Tool Calling**: Enable the AI to perform actions and access external tools
+- **Streaming Responses**: Real-time streaming of AI responses for better UX
+- **Chrome SidePanel Integration**: Accessible UI that doesn't disrupt browsing
+- **Modern UI Components**: Built with Radix, Shadcn, and Tailwind CSS
+
+### Technology Stack
+
+- **Frontend Framework**: Next.js with App Router
+- **AI Integration**: OpenAI and Anthropic SDKs
+- **UI/Component Libraries**: Radix, Shadcn, Tailwind CSS
+- **Extension Framework**: Chrome Extension Manifest V3
+
+## Key Documentation Resources
+
+### Next.js App Router
+
+- [Next.js App Router Documentation](https://nextjs.org/docs/app)
+- [Next.js Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+- [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction)
+- [Server Components vs. Client Components](https://nextjs.org/docs/getting-started/react-essentials)
+
+### AI SDK Integration
+
+- [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
+- [OpenAI Node.js SDK](https://github.com/openai/openai-node)
+- [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
+- [AI SDK Streaming Implementation](https://sdk.vercel.ai/docs/api-reference/streaming)
+
+### Multimodal and Tool-calling Chatbots
+
+- [Vercel AI SDK Chat Components](https://sdk.vercel.ai/docs/components/chat)
+- [OpenAI GPT-4 Vision Guide](https://platform.openai.com/docs/guides/vision)
+- [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)
+- [Anthropic Claude 3 Multimodal Guide](https://docs.anthropic.com/claude/docs/vision)
+- [Anthropic Tool Use Guide](https://docs.anthropic.com/claude/docs/tool-use)
+
+### AI Scaffold Projects
+
+- [Vercel AI Chatbot Template](https://github.com/vercel/ai/tree/main/examples/next-ai-chatbot)
+- [Next.js AI Chatbot with Tool Calling](https://github.com/vercel-labs/ai-chatbot)
+- [Build AI-powered Chatbots with Next.js and Vercel](https://vercel.com/templates/next.js/ai-chatbot)
+
+### Chrome Extension Development
+
+- [Chrome Extension Developer Guide](https://developer.chrome.com/docs/extensions/mv3/getstarted/)
+- [Chrome Extension Manifest V3 Reference](https://developer.chrome.com/docs/extensions/mv3/manifest/)
+- [Chrome SidePanel API Documentation](https://developer.chrome.com/docs/extensions/reference/sidePanel/)
+- [Chrome Extension Samples](https://github.com/GoogleChrome/chrome-extensions-samples)
+
+### UI Components and Styling
+
+- [Radix UI Documentation](https://www.radix-ui.com/docs/primitives/overview/introduction)
+- [Shadcn UI Components](https://ui.shadcn.com)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Styling in Next.js](https://nextjs.org/docs/app/building-your-application/styling)
+
+## Project Structure
+
+```
+my-extension/
+├── .next/            # Next.js build output
+├── chrome/           # Chrome extension files
+│   ├── manifest.json # Extension manifest
+│   ├── background.js # Background script
+│   ├── content.js    # Content script
+│   └── icons/        # Extension icons
+├── public/           # Public assets
+├── src/              # Source code
+│   ├── app/          # Next.js App Router
+│   │   ├── api/      # API routes
+│   │   │   └── chat/ # Chat API endpoint
+│   │   ├── sidepanel/# SidePanel pages
+│   │   └── page.tsx  # Main page
+│   ├── components/   # React components
+│   │   ├── ui/       # UI components (Shadcn)
+│   │   └── chat/     # Chat components
+│   ├── lib/          # Utility functions
+│   └── styles/       # Global styles
+├── next.config.js    # Next.js configuration
+├── tailwind.config.js# Tailwind configuration
+├── tsconfig.json     # TypeScript configuration
+└── package.json      # Project dependencies
+```
+
+## Implementation Approach
+
+### 1. Chrome Extension Setup
+
+Chrome extensions using SidePanel require specific setup in the manifest.json file:
+
+```json
+{
+  "name": "AI Assistant",
+  "version": "1.0.0",
+  "manifest_version": 3,
+  "description": "AI assistant with OpenAI and Anthropic integration",
+  "action": {
+    "default_title": "Open AI Assistant"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "permissions": [
+    "sidePanel",
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
+```
+
+### 2. Next.js Configuration
+
+Next.js can be configured to work with Chrome extensions, but requires special configuration:
+
+```javascript
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  output: 'export', // Use static export for Chrome extension
+  distDir: 'chrome/next', // Output to chrome directory
+  images: {
+    unoptimized: true, // Required for static export
+  },
+  // Handle base path for Chrome extension context
+  basePath: process.env.NODE_ENV === 'production' ? '' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+}
+
+module.exports = nextConfig
+```
+
+### 3. AI SDK Integration
+
+The Vercel AI SDK simplifies integration with various AI providers:
+
+```typescript
+// src/app/api/chat/route.ts
+import { NextRequest } from 'next/server';
+import { Message as VercelChatMessage, StreamingTextResponse } from 'ai';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { ChatAnthropic } from 'langchain/chat_models/anthropic';
+
+// Route handler for chat API
+export async function POST(req: NextRequest) {
+  const { messages, provider = 'openai' } = await req.json();
+  
+  // Select AI provider based on user choice
+  const aiModel = provider === 'anthropic' 
+    ? new ChatAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) 
+    : new ChatOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  
+  // Create a streaming response
+  const response = await aiModel.stream(messages);
+  
+  // Return streaming response
+  return new StreamingTextResponse(response);
+}
+```
+
+### 4. Multimodal Chat Components
+
+Implementing multimodal chat functionality:
+
+```typescript
+// src/components/chat/ChatWithTools.tsx
+import { useChat } from 'ai/react';
+import { useState } from 'react';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import { ImageUploader } from './ImageUploader';
+
+export function ChatWithTools() {
+  const [attachments, setAttachments] = useState<File[]>([]);
+  
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/chat',
+    body: {
+      attachments,
+      provider: 'anthropic', // or 'openai'
+    },
+    onFinish: () => {
+      setAttachments([]);
+    },
+  });
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-auto p-4">
+        {messages.map((message) => (
+          <div key={message.id} className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+            <div className={`inline-block p-3 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'}`}>
+              {message.content}
+              {/* Render attachments if any */}
+              {message.attachments?.map((attachment) => (
+                <img 
+                  key={attachment.id} 
+                  src={attachment.url} 
+                  alt="Attached content" 
+                  className="mt-2 max-w-xs rounded" 
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <form onSubmit={handleSubmit} className="border-t p-4">
+        <div className="flex mb-2">
+          <ImageUploader onUpload={(files) => setAttachments(files)} />
+        </div>
+        <div className="flex">
+          <Input 
+            value={input} 
+            onChange={handleInputChange} 
+            placeholder="Ask me anything..." 
+            className="flex-1 mr-2"
+          />
+          <Button type="submit">Send</Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+```
+
+### 5. Tool Calling Implementation
+
+Implementing tool calling for AI:
+
+```typescript
+// src/app/api/chat/route.ts
+import { NextRequest } from 'next/server';
+import { Message as VercelChatMessage, StreamingTextResponse } from 'ai';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
+
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_current_weather',
+      description: 'Get the current weather in a given location',
+      parameters: {
+        type: 'object',
+        properties: {
+          location: {
+            type: 'string',
+            description: 'The city and state, e.g. San Francisco, CA',
+          },
+          unit: {
+            type: 'string',
+            enum: ['celsius', 'fahrenheit'],
+            description: 'The unit of temperature',
+          },
+        },
+        required: ['location'],
+      },
+    },
+  },
+];
+
+// Function to handle tool calls
+async function runTool(toolName: string, args: any) {
+  if (toolName === 'get_current_weather') {
+    // Mock weather API call
+    return {
+      temperature: 72,
+      unit: args.unit || 'fahrenheit',
+      location: args.location,
+      forecast: ['sunny', 'windy'],
+    };
+  }
+  
+  throw new Error(`Unknown tool: ${toolName}`);
+}
+
+export async function POST(req: NextRequest) {
+  const { messages, provider = 'openai' } = await req.json();
+  
+  if (provider === 'openai') {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4-turbo',
+      messages,
+      tools,
+      stream: true,
+    });
+    
+    const stream = OpenAIStream(response, {
+      async experimental_onToolCall(toolCall) {
+        const result = await runTool(
+          toolCall.function.name,
+          JSON.parse(toolCall.function.arguments)
+        );
+        
+        return {
+          tool_call_id: toolCall.id,
+          function: { name: toolCall.function.name },
+          content: JSON.stringify(result),
+        };
+      },
+    });
+    
+    return new StreamingTextResponse(stream);
+  } else {
+    // Anthropic implementation
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+    
+    // Implement Anthropic tool calling
+    // Implementation will vary based on Claude's tool calling API
+    
+    return new StreamingTextResponse(stream);
+  }
+}
+```
+
+### 6. SidePanel Integration
+
+Connecting Next.js with Chrome's SidePanel:
+
+```javascript
+// chrome/background.js
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+
+chrome.action.onClicked.addListener((tab) => {
+  chrome.sidePanel.open({ tabId: tab.id });
+});
+```
+
+```html
+<!-- chrome/sidepanel.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assistant</title>
+  <link rel="stylesheet" href="next/static/css/app.css" />
+</head>
+<body>
+  <div id="app"></div>
+  <script src="next/static/js/main.js"></script>
+</body>
+</html>
+```
+
+## Development Workflow
+
+1. **Setup Next.js Project**
+   - Create a new Next.js project with App Router
+   - Install required dependencies (AI SDKs, UI libraries)
+
+2. **Configure Chrome Extension**
+   - Create the manifest.json and required Chrome extension files
+   - Set up the SidePanel integration
+
+3. **Implement AI Features**
+   - Set up API routes for AI providers
+   - Implement multimodal chat components
+   - Add tool calling functionality
+
+4. **Build UI Components**
+   - Create the chat interface using Shadcn and Radix
+   - Style with Tailwind CSS
+   - Ensure responsive design for the SidePanel
+
+5. **Build and Test**
+   - Build Next.js for production
+   - Load the extension in Chrome for testing
+   - Iterate based on feedback
+
+## Deployment
+
+1. **Build the Next.js application**
+   ```bash
+   npm run build
+   ```
+
+2. **Package the Chrome extension**
+   - Zip the chrome directory for submission to the Chrome Web Store
+   - Alternatively, use it as an unpacked extension for development
+
+3. **Chrome Web Store Submission**
+   - Create a developer account if needed
+   - Submit the packaged extension for review
+   - Provide required screenshots and descriptions
+
+## Considerations and Best Practices
+
+1. **Security**
+   - Store API keys securely, never in client-side code
+   - Use environment variables for sensitive information
+   - Implement proper authentication if needed
+
+2. **Performance**
+   - Optimize bundle size for faster loading
+   - Use streaming responses for better user experience
+   - Implement efficient state management
+
+3. **Error Handling**
+   - Provide graceful fallbacks when AI services are unavailable
+   - Implement retry logic for failed API calls
+   - Show meaningful error messages to users
+
+4. **Privacy**
+   - Be transparent about data handling
+   - Follow Chrome extension privacy requirements
+   - Clearly communicate how user data is processed
+
+## Resources and Further Reading
+
+- [Chrome Extension Security Best Practices](https://developer.chrome.com/docs/extensions/mv3/security/)
+- [Next.js Performance Optimization](https://nextjs.org/docs/advanced-features/performance)
+- [AI Safety Guidelines](https://platform.openai.com/docs/safety-best-practices)
+- [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
