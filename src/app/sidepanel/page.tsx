@@ -1,6 +1,13 @@
 "use client";
 
 import ChatWithTools from "@/components/chat/ChatWithTools";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 
 export default function SidePanel() {
@@ -11,14 +18,15 @@ export default function SidePanel() {
       <header className="border-b p-4">
         <h1 className="text-xl font-bold">AI Assistant</h1>
         <div className="mt-2">
-          <select
-            value={provider}
-            onChange={(e) => setProvider(e.target.value)}
-            className="px-2 py-1 border rounded"
-          >
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-          </select>
+          <Select value={provider} onValueChange={setProvider}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select AI provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="openai">OpenAI</SelectItem>
+              <SelectItem value="anthropic">Anthropic</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </header>
 

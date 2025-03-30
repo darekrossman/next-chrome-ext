@@ -28,73 +28,45 @@ This project aims to build a Chrome extension that leverages the power of Next.j
 
 ### Next.js App Router
 
-- [Next.js App Router Documentation](https://nextjs.org/docs/app)
-- [Next.js Route Handlers](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
-- [Next.js API Routes](https://nextjs.org/docs/api-routes/introduction)
-- [Server Components vs. Client Components](https://nextjs.org/docs/getting-started/react-essentials)
+- [Next.js App Router Documentation](mdc:https:/nextjs.org/docs/app)
+- [Next.js Route Handlers](mdc:https:/nextjs.org/docs/app/building-your-application/routing/route-handlers)
+- [Next.js API Routes](mdc:https:/nextjs.org/docs/api-routes/introduction)
+- [Server Components vs. Client Components](mdc:https:/nextjs.org/docs/getting-started/react-essentials)
 
 ### AI SDK Integration
 
-- [Vercel AI SDK Documentation](https://sdk.vercel.ai/docs)
-- [OpenAI Node.js SDK](https://github.com/openai/openai-node)
-- [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript)
-- [AI SDK Streaming Implementation](https://sdk.vercel.ai/docs/api-reference/streaming)
+- [Vercel AI SDK Documentation](mdc:https:/sdk.vercel.ai/docs)
+- [OpenAI Node.js SDK](mdc:https:/github.com/openai/openai-node)
+- [Anthropic TypeScript SDK](mdc:https:/github.com/anthropics/anthropic-sdk-typescript)
+- [AI SDK Streaming Implementation](mdc:https:/sdk.vercel.ai/docs/api-reference/streaming)
 
 ### Multimodal and Tool-calling Chatbots
 
-- [Vercel AI SDK Chat Components](https://sdk.vercel.ai/docs/components/chat)
-- [OpenAI GPT-4 Vision Guide](https://platform.openai.com/docs/guides/vision)
-- [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)
-- [Anthropic Claude 3 Multimodal Guide](https://docs.anthropic.com/claude/docs/vision)
-- [Anthropic Tool Use Guide](https://docs.anthropic.com/claude/docs/tool-use)
+- [Vercel AI SDK Chat Components](mdc:https:/sdk.vercel.ai/docs/components/chat)
+- [OpenAI GPT-4 Vision Guide](mdc:https:/platform.openai.com/docs/guides/vision)
+- [OpenAI Function Calling](mdc:https:/platform.openai.com/docs/guides/function-calling)
+- [Anthropic Claude 3 Multimodal Guide](mdc:https:/docs.anthropic.com/claude/docs/vision)
+- [Anthropic Tool Use Guide](mdc:https:/docs.anthropic.com/claude/docs/tool-use)
 
 ### AI Scaffold Projects
 
-- [Vercel AI Chatbot Template](https://github.com/vercel/ai/tree/main/examples/next-ai-chatbot)
-- [Next.js AI Chatbot with Tool Calling](https://github.com/vercel-labs/ai-chatbot)
-- [Build AI-powered Chatbots with Next.js and Vercel](https://vercel.com/templates/next.js/ai-chatbot)
+- [Vercel AI Chatbot Template](mdc:https:/github.com/vercel/ai/tree/main/examples/next-ai-chatbot)
+- [Next.js AI Chatbot with Tool Calling](mdc:https:/github.com/vercel-labs/ai-chatbot)
+- [Build AI-powered Chatbots with Next.js and Vercel](mdc:https:/vercel.com/templates/next.js/ai-chatbot)
 
 ### Chrome Extension Development
 
-- [Chrome Extension Developer Guide](https://developer.chrome.com/docs/extensions/mv3/getstarted/)
-- [Chrome Extension Manifest V3 Reference](https://developer.chrome.com/docs/extensions/mv3/manifest/)
-- [Chrome SidePanel API Documentation](https://developer.chrome.com/docs/extensions/reference/sidePanel/)
-- [Chrome Extension Samples](https://github.com/GoogleChrome/chrome-extensions-samples)
+- [Chrome Extension Developer Guide](mdc:https:/developer.chrome.com/docs/extensions/mv3/getstarted)
+- [Chrome Extension Manifest V3 Reference](mdc:https:/developer.chrome.com/docs/extensions/mv3/manifest)
+- [Chrome SidePanel API Documentation](mdc:https:/developer.chrome.com/docs/extensions/reference/sidePanel)
+- [Chrome Extension Samples](mdc:https:/github.com/GoogleChrome/chrome-extensions-samples)
 
 ### UI Components and Styling
 
-- [Radix UI Documentation](https://www.radix-ui.com/docs/primitives/overview/introduction)
-- [Shadcn UI Components](https://ui.shadcn.com)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Styling in Next.js](https://nextjs.org/docs/app/building-your-application/styling)
-
-## Project Structure
-
-```
-my-extension/
-├── .next/            # Next.js build output
-├── chrome/           # Chrome extension files
-│   ├── manifest.json # Extension manifest
-│   ├── background.js # Background script
-│   ├── content.js    # Content script
-│   └── icons/        # Extension icons
-├── public/           # Public assets
-├── src/              # Source code
-│   ├── app/          # Next.js App Router
-│   │   ├── api/      # API routes
-│   │   │   └── chat/ # Chat API endpoint
-│   │   ├── sidepanel/# SidePanel pages
-│   │   └── page.tsx  # Main page
-│   ├── components/   # React components
-│   │   ├── ui/       # UI components (Shadcn)
-│   │   └── chat/     # Chat components
-│   ├── lib/          # Utility functions
-│   └── styles/       # Global styles
-├── next.config.js    # Next.js configuration
-├── tailwind.config.js# Tailwind configuration
-├── tsconfig.json     # TypeScript configuration
-└── package.json      # Project dependencies
-```
+- [Radix UI Documentation](mdc:https:/www.radix-ui.com/docs/primitives/overview/introduction)
+- [Shadcn UI Components](mdc:https:/ui.shadcn.com)
+- [Tailwind CSS Documentation](mdc:https:/tailwindcss.com/docs)
+- [Styling in Next.js](mdc:https:/nextjs.org/docs/app/building-your-application/styling)
 
 ## Implementation Approach
 
@@ -437,7 +409,7 @@ chrome.action.onClicked.addListener((tab) => {
 
 ## Resources and Further Reading
 
-- [Chrome Extension Security Best Practices](https://developer.chrome.com/docs/extensions/mv3/security/)
-- [Next.js Performance Optimization](https://nextjs.org/docs/advanced-features/performance)
-- [AI Safety Guidelines](https://platform.openai.com/docs/safety-best-practices)
-- [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole/)
+- [Chrome Extension Security Best Practices](mdc:https:/developer.chrome.com/docs/extensions/mv3/security)
+- [Next.js Performance Optimization](mdc:https:/nextjs.org/docs/advanced-features/performance)
+- [AI Safety Guidelines](mdc:https:/platform.openai.com/docs/safety-best-practices)
+- [Chrome Web Store Developer Dashboard](mdc:https:/chrome.google.com/webstore/devconsole)

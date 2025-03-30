@@ -4,7 +4,12 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev",
-		"build": "next build",
+		"dev:api": "next dev -p 3000",
+		"build": "next build && npm run prepare",
+		"build:dev": "NEXT_PUBLIC_API_MODE=development next build && npm run prepare",
+		"build:prod": "NEXT_PUBLIC_API_MODE=production next build && npm run prepare",
+		"prepare": "mv out/_next out/assets && sed -i '' 's/\\/_next/\\/assets/g' out/**/**.html && npm run extract-inline-scripts",
+		"extract-inline-scripts": "node scripts/extract-inline-scripts.js",
 		"start": "next start",
 		"lint": "next lint"
 	},
@@ -14,6 +19,7 @@
 		"@ai-sdk/react": "^1.2.0",
 		"@radix-ui/react-dialog": "^1.1.6",
 		"@radix-ui/react-dropdown-menu": "^2.1.6",
+		"@radix-ui/react-select": "^2.1.6",
 		"@radix-ui/react-slot": "^1.1.2",
 		"@radix-ui/react-toast": "^1.2.6",
 		"ai": "^4.2.6",

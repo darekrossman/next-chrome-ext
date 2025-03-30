@@ -30,6 +30,8 @@ The user asks questions about the following coding languages:
 
 ### Code Implementation Guidelines
 Follow these rules when you write code:
+- Use `npx shadcn@latest` wen adding shadcn components.
+- Always use pnpm for package management.
 - Use early returns whenever possible to make the code more readable.
 - Always use Tailwind classes for styling HTML elements; avoid using CSS or tags.
 - Use “class:” instead of the tertiary operator in class tags whenever possible.

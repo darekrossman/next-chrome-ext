@@ -6,6 +6,14 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { ImageUploader } from "./ImageUploader";
 
+// Base URL for API requests - localhost in development, relative in production
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_MODE === "development" ? "http://localhost:3000" : "";
+
+// Debug info for the current environment
+console.log("API mode:", process.env.NEXT_PUBLIC_API_MODE);
+console.log("API base URL:", API_BASE_URL);
+
 interface ChatWithToolsProps {
   provider: string;
 }
@@ -14,6 +22,7 @@ export default function ChatWithTools({ provider }: ChatWithToolsProps) {
   const [attachments, setAttachments] = useState<File[]>([]);
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: `${API_BASE_URL}/api/chat/`, // Added trailing slash to prevent redirects
     body: {
       attachments,
       provider,

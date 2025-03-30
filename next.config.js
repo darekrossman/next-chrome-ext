@@ -1,14 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-	// reactStrictMode: true,
-	// output: "export", // Use static export for Chrome extension
-	// distDir: "chrome/next", // Output to chrome directory
-	// images: {
-	// 	unoptimized: true, // Required for static export
-	// },
-	// // Handle base path for Chrome extension context
-	// basePath: process.env.NODE_ENV === "production" ? "" : "",
-	// assetPrefix: process.env.NODE_ENV === "production" ? "" : "",
+	reactStrictMode: true,
+	assetPrefix: process.env.NODE_ENV === "production" ? "" : "",
+	output: "export",
+	trailingSlash: true,
+	// Ensure images are unoptimized for static export
+	images: {
+		unoptimized: true,
+	},
+	// Make custom environment variables available to the client
+	env: {
+		NEXT_PUBLIC_API_MODE: process.env.NEXT_PUBLIC_API_MODE || "production",
+	},
 };
 
 module.exports = nextConfig;
