@@ -1,7 +1,11 @@
 'use client';
 
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 import type { Message } from 'ai';
+import { Bot, Brain, UserIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
 import { Markdown } from '../markdown';
 
 // Utility function to get text from data URL
@@ -30,8 +34,29 @@ interface MessageListProps {
  * - Reasoning explanations from AI
  */
 export function MessageList({ messages }: MessageListProps) {
+  // Track open state of each reasoning collapsible
+  const [openReasonings, setOpenReasonings] = useState<Record<string, boolean>>({});
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const toggleReasoning = (id: string) => {
+    setOpenReasonings((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
   return (
-    <div className="flex-1 overflow-auto p-4">
+    <div className="flex-1 overflow-auto p-4 flex flex-col gap-4">
       {messages.length === 0 && (
         <div className="text-center text-muted-foreground mt-10">
           <p className="mb-2">Hi there! Welcome to AI Chat Bot.</p>
@@ -42,114 +67,105 @@ export function MessageList({ messages }: MessageListProps) {
       {messages.map((message) => (
         <div
           key={message.id}
-          className={`mb-4 ${message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}`}
+          className={cn('flex justify-start items-start gap-3 p-2', {
+            'bg-muted rounded-lg py-3': message.role === 'user',
+          })}
         >
-          <div className={`max-w-[80%] ${message.role === 'user' ? '' : ''}`}>
+          <div className={'flex items-center justify-center rounded-full shrink-0 mt-[-1px]'}>
+            {message.role === 'user' ? (
+              <UserIcon className="h-5 w-4 text-secondary-foreground/50" />
+            ) : (
+              <Bot className="h-5 w-4 text-secondary-foreground/50" />
+            )}
+          </div>
+          <div className="text-sm flex flex-col gap-4">
             <div className="flex flex-col gap-4">
               <Markdown>{message.content}</Markdown>
-            </div>
-
-            <div>
-              {message?.experimental_attachments
-                ?.filter((attachment) => attachment?.contentType?.startsWith('image/'))
-                .map((attachment, index) => (
-                  <Image
-                    key={`${message.id}-${index}`}
-                    src={attachment.url}
-                    width={500}
-                    height={500}
-                    alt={attachment.name ?? `attachment-${index}`}
-                    className="mt-2 rounded-md"
-                  />
-                ))}
-
-              {message?.experimental_attachments
-                ?.filter((attachment) => attachment?.contentType?.startsWith('application/pdf'))
-                .map((attachment, index) => (
-                  <iframe
-                    key={`${message.id}-pdf-${index}`}
-                    src={attachment.url}
-                    width={500}
-                    height={600}
-                    title={attachment.name ?? `attachment-${index}`}
-                    className="mt-2 rounded-md"
-                  />
-                ))}
-
-              {message?.experimental_attachments
-                ?.filter((attachment) => attachment?.contentType?.startsWith('text/'))
-                .map((attachment, index) => (
-                  <div
-                    key={`${message.id}-text-${index}`}
-                    className="mt-2 p-2 rounded-md bg-secondary text-secondary-foreground text-sm max-h-40 overflow-auto"
-                  >
-                    {getTextFromDataUrl(attachment.url)}
-                  </div>
-                ))}
             </div>
 
             {/* Display reasoning if available */}
             {message?.parts?.map((part: MessagePart, idx) => {
               if (part.type === 'reasoning') {
+                const reasoningId = `reasoning-${message.id}-${idx}`;
+
                 return (
-                  <pre key={`reasoning-${message.id}-${idx}`} className="mt-2 text-xs">
-                    {part.details?.map((detail) =>
-                      detail.type === 'text' ? detail.text : '<redacted>'
-                    )}
-                  </pre>
-                );
-              }
-              if (part.type === 'audio') {
-                return (
-                  <div
-                    key={`audio-${message.id}-${idx}`}
-                    className="mt-2 flex items-center bg-[#252525] p-2 rounded"
+                  <Collapsible
+                    key={reasoningId}
+                    open={openReasonings[reasoningId]}
+                    onOpenChange={() => toggleReasoning(reasoningId)}
                   >
-                    <button
-                      type="button"
-                      aria-label="Play audio message"
-                      className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </button>
-                    <div className="ml-3 h-5">
-                      <svg
-                        width="70"
-                        height="20"
-                        viewBox="0 0 70 20"
-                        aria-hidden="true"
-                        role="presentation"
-                      >
-                        <path
-                          d="M1,10 L5,5 L9,15 L13,10 L17,12 L21,8 L25,10 L29,5 L33,12 L37,5 L41,10 L45,5 L49,10 L53,5 L57,10 L61,8 L65,12 L69,10"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          fill="none"
-                          strokeLinecap="round"
-                          className="text-primary"
-                        />
-                      </svg>
+                    <div className="flex items-center">
+                      <CollapsibleTrigger className="text-muted-foreground hover:text-primary transition-colors border rounded-full px-2 py-1">
+                        <div
+                          className={`flex items-center gap-1 text-xs ${!message.content ? 'animate-pulse' : ''}`}
+                        >
+                          <Brain className="w-3 h-3" />
+                          <div>Reasoning</div>
+                        </div>
+                      </CollapsibleTrigger>
                     </div>
-                  </div>
+
+                    <CollapsibleContent className="text-xs mt-1 border rounded-lg p-2">
+                      <div className="text-xs flex flex-col gap-2 text-muted-foreground">
+                        <Markdown>
+                          {`${part.details
+                            ?.map((detail) => (detail.type === 'text' ? detail.text : '<redacted>'))
+                            .join('\n')}`}
+                        </Markdown>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 );
               }
+
               return null;
             })}
+
+            {message?.experimental_attachments && (
+              <div>
+                {message?.experimental_attachments
+                  ?.filter((attachment) => attachment?.contentType?.startsWith('image/'))
+                  .map((attachment, index) => (
+                    <Image
+                      key={`${message.id}-${index}`}
+                      src={attachment.url}
+                      width={500}
+                      height={500}
+                      alt={attachment.name ?? `attachment-${index}`}
+                      className="mt-2 rounded-md"
+                    />
+                  ))}
+
+                {message?.experimental_attachments
+                  ?.filter((attachment) => attachment?.contentType?.startsWith('application/pdf'))
+                  .map((attachment, index) => (
+                    <iframe
+                      key={`${message.id}-pdf-${index}`}
+                      src={attachment.url}
+                      width={500}
+                      height={600}
+                      title={attachment.name ?? `attachment-${index}`}
+                      className="mt-2 rounded-md"
+                    />
+                  ))}
+
+                {message?.experimental_attachments
+                  ?.filter((attachment) => attachment?.contentType?.startsWith('text/'))
+                  .map((attachment, index) => (
+                    <div
+                      key={`${message.id}-text-${index}`}
+                      className="mt-2 p-2 rounded-md bg-secondary text-secondary-foreground text-sm max-h-40 overflow-auto"
+                    >
+                      {getTextFromDataUrl(attachment.url)}
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       ))}
+
+      <div ref={messagesEndRef} />
     </div>
   );
 }

@@ -1,8 +1,12 @@
+import { getDefaultModelId, getModelById } from '@/config/models';
 import { anthropic } from '@ai-sdk/anthropic';
 import type { AnthropicProviderOptions } from '@ai-sdk/anthropic';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import type { NextRequest, NextResponse } from 'next/server';
+
+// Make the route static for static exports
+export const dynamic = 'force-static';
 
 // Allow responses up to 30 seconds
 export const maxDuration = 30;
@@ -48,13 +52,26 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { messages, provider = 'openai', currentUrl = null } = body;
+    const { messages, modelId = null, currentUrl = null } = body;
+
+    // Determine provider from model ID or use default
+    let effectiveModelId = modelId;
+    let provider = 'openai'; // Default provider
+
+    if (modelId) {
+      const modelInfo = getModelById(modelId);
+      provider = modelInfo?.provider || 'openai';
+    } else {
+      // Fallback to default model if none specified
+      effectiveModelId = getDefaultModelId(provider);
+    }
 
     // Debug information
     console.log(
       'Request body:',
       JSON.stringify({
         messageCount: messages.length,
+        modelId: effectiveModelId,
         provider,
         currentUrl,
         hasAttachments: messages.some((m: any) => m.experimental_attachments?.length > 0),
@@ -103,12 +120,15 @@ export async function POST(req: NextRequest) {
     console.log('Message has PDFs:', messagesHavePDF);
     console.log('Message has images:', messagesHaveImages);
 
-    // Use different provider based on attachment types
-    const effectiveProvider = messagesHavePDF ? 'anthropic' : provider;
+    // Override to Anthropic model if PDF is detected and no specific model requested
+    if (messagesHavePDF && !modelId) {
+      provider = 'anthropic';
+      effectiveModelId = getDefaultModelId('anthropic');
+    }
 
-    if (effectiveProvider === 'openai') {
+    if (provider === 'openai') {
       const result = streamText({
-        model: openai('gpt-4o'),
+        model: openai(effectiveModelId),
         messages: messagesWithContext,
       });
 
@@ -118,9 +138,9 @@ export async function POST(req: NextRequest) {
       return applyCorsHeaders(response);
     }
 
-    if (effectiveProvider === 'anthropic') {
+    if (provider === 'anthropic') {
       const result = streamText({
-        model: anthropic('claude-3-7-sonnet-20250219'),
+        model: anthropic(effectiveModelId),
         messages: messagesWithContext,
         providerOptions: {
           anthropic: {
@@ -137,7 +157,7 @@ export async function POST(req: NextRequest) {
       return applyCorsHeaders(response);
     }
 
-    const errorResponse = new Response(JSON.stringify({ error: 'Invalid provider' }), {
+    const errorResponse = new Response(JSON.stringify({ error: 'Invalid provider or model' }), {
       status: 400,
       headers: {
         'Content-Type': 'application/json',

@@ -1,31 +1,41 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
+import { type AIModel, getModelById } from '@/config/models';
 import { useChat } from '@ai-sdk/react';
 import { ArrowUp, PaperclipIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { getCurrentTabUrl } from '../../lib/chromeUtils';
-
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { API_BASE_URL } from '../../config/api';
 import { useChatSubmit } from '../../hooks/useChatSubmit';
 import { useFileAttachments } from '../../hooks/useFileAttachments';
+import { useModels } from '../../hooks/useModels';
 import { useTextareaAutoResize } from '../../hooks/useTextareaAutoResize';
-// Imports for extracted components
+import { getCurrentTabUrl } from '../../lib/chromeUtils';
 import { Button } from '../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
 import { AttachmentPreviews } from './AttachmentPreviews';
 import { MessageList } from './MessageList';
 
-// API config moved to a separate config file
-import { API_BASE_URL } from '../../config/api';
-
 interface ChatWithToolsProps {
-  provider: string;
+  modelId: string;
+  setModelId: Dispatch<SetStateAction<string>>;
 }
 
 /**
  * ChatWithTools - Main chat interface component that supports file attachments
  * and integrates with AI providers for conversation.
  */
-export default function ChatWithTools({ provider }: ChatWithToolsProps) {
+export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProps) {
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
+  const { groupedModels, loading: loadingModels } = useModels();
 
   // Custom hooks for handling specific functionality
   const {
@@ -62,7 +72,7 @@ export default function ChatWithTools({ provider }: ChatWithToolsProps) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: `${API_BASE_URL}/api/chat/`,
     body: {
-      provider,
+      modelId,
       currentUrl,
     },
     onError: (error) => console.error(error),
@@ -128,7 +138,7 @@ export default function ChatWithTools({ provider }: ChatWithToolsProps) {
             rows={1}
           />
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex items-center gap-2">
               <Button
                 type="button"
                 onClick={handleUploadClick}
@@ -139,6 +149,32 @@ export default function ChatWithTools({ provider }: ChatWithToolsProps) {
               >
                 <PaperclipIcon size={18} />
               </Button>
+
+              <div className="flex items-center gap-2">
+                <Select value={modelId} onValueChange={setModelId} disabled={loadingModels}>
+                  <SelectTrigger className="w-[180px] rounded-full">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {loadingModels ? (
+                      <SelectItem value="loading" disabled>
+                        Loading models...
+                      </SelectItem>
+                    ) : (
+                      Object.entries(groupedModels).map(([provider, models]) => (
+                        <SelectGroup key={provider}>
+                          <SelectLabel className="uppercase">{provider}</SelectLabel>
+                          {models.map((model: AIModel) => (
+                            <SelectItem key={model.id} value={model.id}>
+                              {model.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <Button type="submit" disabled={isLoading} size="icon">
               <ArrowUp size={16} />
