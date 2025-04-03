@@ -1,16 +1,16 @@
-import { AI_MODELS, getModelsByProvider } from '@/config/models';
-import type { NextRequest } from 'next/server';
+import { AI_MODELS, getModelsByProvider } from "@/config/models";
+import type { NextRequest } from "next/server";
 
 // Make the route static for static exports
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 
 // CORS headers for all environments
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // Allow all origins including Chrome extensions
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400', // 24 hours
+  "Access-Control-Allow-Origin": "*", // Allow all origins including Chrome extensions
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Requested-With",
+  "Access-Control-Allow-Credentials": "true",
+  "Access-Control-Max-Age": "86400", // 24 hours
 };
 
 // Apply CORS headers to any response
@@ -33,7 +33,7 @@ function applyCorsHeaders(response: Response): Response {
 
 // Handle OPTIONS request for CORS preflight
 export async function OPTIONS() {
-  console.log('OPTIONS request received');
+  console.log("OPTIONS request received");
   return new Response(null, {
     status: 204,
     headers: corsHeaders,
@@ -43,7 +43,7 @@ export async function OPTIONS() {
 export async function GET(req: NextRequest) {
   try {
     // Check if we should group by provider
-    const grouped = req.nextUrl.searchParams.get('grouped') === 'true';
+    const grouped = req.nextUrl.searchParams.get("grouped") === "true";
 
     // Return either grouped or ungrouped models
     const response = new Response(
@@ -53,21 +53,21 @@ export async function GET(req: NextRequest) {
       {
         status: 200,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
 
     return applyCorsHeaders(response);
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
 
     const errorResponse = new Response(
-      JSON.stringify({ error: 'Internal server error', details: String(error) }),
+      JSON.stringify({ error: "Internal server error", details: String(error) }),
       {
         status: 500,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );

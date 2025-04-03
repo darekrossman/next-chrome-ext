@@ -131,4 +131,38 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [OpenAI](https://openai.com/)
 - [Anthropic](https://www.anthropic.com/)
 - [Chrome Extensions API](https://developer.chrome.com/docs/extensions/)
-- [Vercel AI SDK](https://sdk.vercel.ai/) - Multimodal chat features 
+- [Vercel AI SDK](https://sdk.vercel.ai/) - Multimodal chat features
+
+## Using MCP Tools
+
+This extension supports MCP (Model Context Protocol) tools for enhanced AI capabilities. It integrates with Firecrawl, which provides web scraping, crawling, and search tools.
+
+### Setup
+
+1. Make sure the `FIRECRAWL_API_KEY` is set in your `.env.local` file:
+   ```
+   FIRECRAWL_API_KEY=fc-0ce08d431bce48df965686c7076e05a6
+   ```
+
+2. That's it! The extension will automatically start the Firecrawl MCP server on demand when needed using npx.
+
+### Usage
+
+When chatting with the AI, you can toggle the "Use web tools" option to enable or disable MCP tools. When enabled, the AI can:
+
+- Scrape web pages
+- Search the web
+- Crawl websites
+- Extract structured data
+
+The tools are available to both OpenAI and Anthropic models.
+
+### How it works
+
+The extension uses a stdio transport to communicate with the Firecrawl MCP server. When MCP tools are requested:
+
+1. The extension automatically starts Firecrawl MCP using `npx firecrawl-mcp`
+2. The AI can then use the tools provided by Firecrawl
+3. When the chat session ends, the MCP server is automatically terminated
+
+This approach eliminates the need to manually install and start the Firecrawl MCP server. 

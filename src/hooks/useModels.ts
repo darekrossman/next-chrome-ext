@@ -1,6 +1,6 @@
-import type { AIModel } from '@/config/models';
-import { useEffect, useState } from 'react';
-import { API_BASE_URL } from '../config/api';
+import type { AIModel } from "@/config/models";
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config/api";
 
 export interface GroupedModels {
   [provider: string]: AIModel[];
@@ -23,7 +23,9 @@ export const useModels = () => {
         const response = await fetch(`${API_BASE_URL}/api/models?grouped=true`);
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch models: ${response.status} ${response.statusText}`);
+          throw new Error(
+            `Failed to fetch models: ${response.status} ${response.statusText}`
+          );
         }
 
         const data = await response.json();
@@ -37,7 +39,7 @@ export const useModels = () => {
 
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching models:', err);
+        console.error("Error fetching models:", err);
         setError(err instanceof Error ? err : new Error(String(err)));
         setLoading(false);
       }

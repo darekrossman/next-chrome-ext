@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import ChatWithTools from '@/components/chat/ChatWithTools';
-import { getDefaultModelId } from '@/config/models';
-import { useState } from 'react';
+import ChatWithTools from "@/components/chat/ChatWithTools";
+import { getDefaultModelId } from "@/config/models";
+import { useState } from "react";
 
 export default function SidePanel() {
-  const [modelId, setModelId] = useState(getDefaultModelId('anthropic'));
+  const [modelId, setModelId] = useState(getDefaultModelId("anthropic"));
 
   return (
     <div className="flex flex-col h-screen">

@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Badge } from '@/components/ui/badge';
-import { type AIModel, getModelById } from '@/config/models';
-import { useChat } from '@ai-sdk/react';
-import { ArrowUp, PaperclipIcon } from 'lucide-react';
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-import { API_BASE_URL } from '../../config/api';
-import { useChatSubmit } from '../../hooks/useChatSubmit';
-import { useFileAttachments } from '../../hooks/useFileAttachments';
-import { useModels } from '../../hooks/useModels';
-import { useTextareaAutoResize } from '../../hooks/useTextareaAutoResize';
-import { getCurrentTabUrl } from '../../lib/chromeUtils';
-import { Button } from '../ui/button';
+import { Badge } from "@/components/ui/badge";
+import { type AIModel, getModelById } from "@/config/models";
+import { useChat } from "@ai-sdk/react";
+import { ArrowUp, PaperclipIcon, Brain } from "lucide-react";
+import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
+import { API_BASE_URL } from "../../config/api";
+import { useChatSubmit } from "../../hooks/useChatSubmit";
+import { useFileAttachments } from "../../hooks/useFileAttachments";
+import { useModels } from "../../hooks/useModels";
+import { useTextareaAutoResize } from "../../hooks/useTextareaAutoResize";
+import { getCurrentTabUrl } from "../../lib/chromeUtils";
+import { Button } from "../ui/button";
 import {
   Select,
   SelectContent,
@@ -20,9 +20,10 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
-import { AttachmentPreviews } from './AttachmentPreviews';
-import { MessageList } from './MessageList';
+} from "../ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { AttachmentPreviews } from "./AttachmentPreviews";
+import { MessageList } from "./MessageList";
 
 interface ChatWithToolsProps {
   modelId: string;
@@ -36,6 +37,18 @@ interface ChatWithToolsProps {
 export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProps) {
   const [currentUrl, setCurrentUrl] = useState<string | null>(null);
   const { groupedModels, loading: loadingModels } = useModels();
+  const [useReasoning, setUseReasoning] = useState(true);
+
+  // Get the current model to check for reasoning support
+  const currentModel = getModelById(modelId);
+  const supportsReasoning = currentModel?.supportsReasoning;
+
+  // Turn off reasoning when switching to a model that doesn't support it
+  useEffect(() => {
+    if (!supportsReasoning && useReasoning) {
+      setUseReasoning(false);
+    }
+  }, [modelId, supportsReasoning, useReasoning]);
 
   // Custom hooks for handling specific functionality
   const {
@@ -59,9 +72,9 @@ export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProp
       try {
         const url = await getCurrentTabUrl();
         setCurrentUrl(url);
-        console.log('Current tab URL:', url);
+        console.log("Current tab URL:", url);
       } catch (error) {
-        console.error('Error fetching current tab URL:', error);
+        console.error("Error fetching current tab URL:", error);
       }
     };
 
@@ -74,6 +87,7 @@ export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProp
     body: {
       modelId,
       currentUrl,
+      useReasoning,
     },
     onError: (error) => console.error(error),
   });
@@ -151,7 +165,11 @@ export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProp
               </Button>
 
               <div className="flex items-center gap-2">
-                <Select value={modelId} onValueChange={setModelId} disabled={loadingModels}>
+                <Select
+                  value={modelId}
+                  onValueChange={setModelId}
+                  disabled={loadingModels}
+                >
                   <SelectTrigger className="w-[180px] rounded-full">
                     <SelectValue placeholder="Select model" />
                   </SelectTrigger>
@@ -174,6 +192,52 @@ export default function ChatWithTools({ modelId, setModelId }: ChatWithToolsProp
                     )}
                   </SelectContent>
                 </Select>
+
+                {supportsReasoning && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          onClick={() => setUseReasoning(!useReasoning)}
+                          variant="outline"
+                          size="icon"
+                          className={`transition-all ${
+                            useReasoning
+                              ? "bg-gradient-to-br from-purple-100 via-purple-200 to-purple-300 dark:from-purple-950 dark:via-purple-900 dark:to-purple-800 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                          aria-label={
+                            useReasoning
+                              ? "Disable reasoning mode"
+                              : "Enable reasoning mode"
+                          }
+                        >
+                          <Brain
+                            size={18}
+                            className={
+                              useReasoning
+                                ? "animate-pulse filter drop-shadow-[0_0_3px_rgba(168,85,247,0.5)]"
+                                : ""
+                            }
+                          />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom">
+                        <p>
+                          {useReasoning
+                            ? "Turn off AI reasoning"
+                            : "Turn on AI reasoning"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {useReasoning
+                            ? "AI will show its step-by-step thinking process"
+                            : "AI will only show its final answer"}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
             </div>
             <Button type="submit" disabled={isLoading} size="icon">

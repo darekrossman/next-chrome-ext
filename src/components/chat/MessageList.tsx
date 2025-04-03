@@ -87,6 +87,7 @@ export function MessageList({ messages }: MessageListProps) {
             {message?.parts?.map((part: MessagePart, idx) => {
               if (part.type === 'reasoning') {
                 const reasoningId = `reasoning-${message.id}-${idx}`;
+                const hasContent = part.details && part.details.length > 0;
 
                 return (
                   <Collapsible
@@ -97,7 +98,7 @@ export function MessageList({ messages }: MessageListProps) {
                     <div className="flex items-center">
                       <CollapsibleTrigger className="text-muted-foreground hover:text-primary transition-colors border rounded-full px-2 py-1">
                         <div
-                          className={`flex items-center gap-1 text-xs ${!message.content ? 'animate-pulse' : ''}`}
+                          className={`flex items-center gap-1 text-xs ${!hasContent ? 'animate-pulse' : ''}`}
                         >
                           <Brain className="w-3 h-3" />
                           <div>Reasoning</div>
@@ -107,11 +108,15 @@ export function MessageList({ messages }: MessageListProps) {
 
                     <CollapsibleContent className="text-xs mt-1 border rounded-lg p-2">
                       <div className="text-xs flex flex-col gap-2 text-muted-foreground">
-                        <Markdown>
-                          {`${part.details
-                            ?.map((detail) => (detail.type === 'text' ? detail.text : '<redacted>'))
-                            .join('\n')}`}
-                        </Markdown>
+                        {hasContent ? (
+                          <Markdown>
+                            {`${part.details
+                              ?.map((detail) => (detail.type === 'text' ? detail.text : '<redacted>'))
+                              .join('\n')}`}
+                          </Markdown>
+                        ) : (
+                          <div className="italic">No reasoning details available</div>
+                        )}
                       </div>
                     </CollapsibleContent>
                   </Collapsible>

@@ -4,77 +4,48 @@
  * This file contains the available AI models from different providers
  * that can be used throughout the application.
  */
+import { registry } from "@/lib/providers";
 
 export interface AIModel {
   id: string;
   name: string;
-  provider: 'openai' | 'anthropic';
+  provider: "openai" | "anthropic";
   description: string;
   capabilities: string[];
   supportsImages?: boolean;
   supportsPdf?: boolean;
+  supportsReasoning?: boolean;
 }
 
+// Convert registry models to our application model format
 export const AI_MODELS: AIModel[] = [
-  // OpenAI Models
+  // Anthropic models from registry
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'openai',
-    description: "OpenAI's most capable multimodal model",
-    capabilities: ['Text', 'Images', 'Code', 'Reasoning'],
+    id: "anthropic:fast",
+    name: "Claude 3 Haiku (Fast)",
+    provider: "anthropic",
+    description: "Fast and efficient model for basic tasks",
+    capabilities: ["Text", "Images", "Code"],
     supportsImages: true,
   },
   {
-    id: 'gpt-4-turbo',
-    name: 'GPT-4 Turbo',
-    provider: 'openai',
-    description: 'Fast and powerful text model',
-    capabilities: ['Text', 'Code', 'Reasoning'],
-  },
-  {
-    id: 'gpt-3.5-turbo',
-    name: 'GPT-3.5 Turbo',
-    provider: 'openai',
-    description: 'Fast and efficient model for basic tasks',
-    capabilities: ['Text', 'Code'],
-  },
-
-  // Anthropic Models
-  {
-    id: 'claude-3-7-sonnet-20250219',
-    name: 'Claude 3.7 Sonnet',
-    provider: 'anthropic',
-    description: "Anthropic's powerful model with balanced capabilities",
-    capabilities: ['Text', 'Images', 'Code', 'Reasoning', 'PDFs'],
+    id: "anthropic:writing",
+    name: "Claude 3.7 Sonnet (Writing)",
+    provider: "anthropic",
+    description: "Anthropic's model optimized for content creation",
+    capabilities: ["Text", "Images", "Code", "PDFs"],
     supportsImages: true,
     supportsPdf: true,
   },
   {
-    id: 'claude-3-5-sonnet-20240620',
-    name: 'Claude 3.5 Sonnet',
-    provider: 'anthropic',
-    description: 'Balanced model for most tasks',
-    capabilities: ['Text', 'Images', 'Code', 'Reasoning', 'PDFs'],
+    id: "anthropic:reasoning",
+    name: "Claude 3.7 Sonnet (Reasoning)",
+    provider: "anthropic",
+    description: "Anthropic's model with enhanced reasoning capabilities",
+    capabilities: ["Text", "Images", "Code", "Reasoning", "PDFs"],
     supportsImages: true,
     supportsPdf: true,
-  },
-  {
-    id: 'claude-3-opus-20240229',
-    name: 'Claude 3 Opus',
-    provider: 'anthropic',
-    description: "Anthropic's most powerful model",
-    capabilities: ['Text', 'Images', 'Code', 'Reasoning', 'PDFs'],
-    supportsImages: true,
-    supportsPdf: true,
-  },
-  {
-    id: 'claude-3-haiku-20240307',
-    name: 'Claude 3 Haiku',
-    provider: 'anthropic',
-    description: 'Fast and efficient model for basic tasks',
-    capabilities: ['Text', 'Images', 'Code'],
-    supportsImages: true,
+    supportsReasoning: true,
   },
 ];
 
@@ -99,12 +70,12 @@ export const getModelsByProvider = () => {
  */
 export const getDefaultModelId = (provider: string): string => {
   switch (provider) {
-    case 'openai':
-      return 'gpt-4o';
-    case 'anthropic':
-      return 'claude-3-7-sonnet-20250219';
+    case "openai":
+      return "anthropic:writing"; // Fallback to Anthropic until we add OpenAI to registry
+    case "anthropic":
+      return "anthropic:reasoning";
     default:
-      return 'gpt-4o';
+      return "anthropic:reasoning";
   }
 };
 
